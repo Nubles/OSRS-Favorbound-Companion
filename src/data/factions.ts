@@ -1,115 +1,134 @@
-import { Faction } from "../types";
+import { ContentItem, Faction, RankThreshold } from "../types";
+
+const allowed = (names: string[]): ContentItem[] => names.map((name) => ({ name, status: "allowed" }));
+const conditional = (names: string[]): ContentItem[] => names.map((name) => ({ name, status: "conditional" }));
+const locked = (names: string[]): ContentItem[] => names.map((name) => ({ name, status: "locked" }));
+
+export const RANK_THRESHOLDS: RankThreshold[] = [
+  { name: "Neutral", favor: 0 },
+  { name: "Acquainted", favor: 650 },
+  { name: "Trusted", favor: 1250 },
+  { name: "Honored", favor: 3000 },
+  { name: "Allied", favor: 5000 }
+];
 
 export const FACTIONS: Faction[] = [
   {
     id: "druids",
     name: "Druids",
-    sigil: "leaf",
-    tagline: "Restoration, herbs, and living places.",
+    sigil: "Pine",
+    tagline: "Guardians of nature and balance.",
     ethos: "Druids allow progress that protects, restores, grows, or communes with natural forces.",
-    allowedThemes: ["Herblore", "Farming", "Nature magic", "Woodland errands"],
-    regions: ["Taverley", "Karamja jungle", "Entrana", "Farming guild routes"],
-    skills: ["Herblore", "Farming", "Woodcutting", "Magic"],
-    gear: ["Druid robes", "Staffs", "Nature talismans", "Plant-based supplies"],
+    regions: [...allowed(["Taverley", "Karamja", "Entrana", "Tree Gnome routes"]), ...conditional(["Tirannwn", "Farming Guild"])],
+    skills: [...allowed(["Herblore", "Farming", "Woodcutting", "Magic"]), ...conditional(["Prayer", "Fletching"])],
+    gear: [...allowed(["Druid robes", "Staffs", "Herb sacks", "Skilling tools"]), ...conditional(["Nature talismans", "Gnome equipment"])],
+    themes: [...allowed(["Nature and balance", "Druid rituals", "Farming and gathering", "Peaceful content"]), ...locked(["Dark rituals"])],
     duties: [
-      { id: "druids-herb-run", label: "Complete a full herb run without combat errands.", favor: 3 },
-      { id: "druids-restore", label: "Gather and process 50 natural resources.", favor: 4 },
-      { id: "druids-cleanse", label: "Finish a quest or task with a nature/restoration theme.", favor: 6 }
+      { id: "druids-herb-run", label: "Complete herb patches", detail: "Finish herb patches without unrelated combat errands.", favor: 150, target: 5, unit: "patches" },
+      { id: "druids-wood", label: "Chop nature logs", detail: "Gather logs from woodland routes for the faction storehouse.", favor: 120, target: 50, unit: "logs" },
+      { id: "druids-runes", label: "Craft nature runes", detail: "Create nature runes or bank equivalent nature-linked resources.", favor: 250, target: 25, unit: "runes" }
     ],
-    allianceCost: 12,
-    accent: "#5e8f55"
+    allianceCost: 5000,
+    accent: "#73a94d"
   },
   {
     id: "dwarves",
     name: "Dwarves",
-    sigil: "hammer",
-    tagline: "Ore, machinery, craft, and stubborn progress.",
+    sigil: "Forge",
+    tagline: "Makers of fine craft and smiths.",
     ethos: "Dwarves allow content tied to mining, smithing, machinery, underground routes, and crafted power.",
-    allowedThemes: ["Mining", "Smithing", "Machinery", "Crafted gear"],
-    regions: ["Keldagrim", "Dwarven Mine", "Ice Mountain", "Lovakengj worksites"],
-    skills: ["Mining", "Smithing", "Crafting", "Construction"],
-    gear: ["Metal armour", "Pickaxes", "Crossbows", "Blast Furnace supplies"],
+    regions: [...allowed(["Keldagrim", "Dwarven Mine", "Ice Mountain"]), ...conditional(["Lovakengj", "Blast Furnace"])],
+    skills: [...allowed(["Mining", "Smithing", "Crafting", "Construction"]), ...conditional(["Defence", "Ranged"])],
+    gear: [...allowed(["Metal armour", "Pickaxes", "Crossbows", "Forged tools"]), ...conditional(["Cannon parts", "Barrows repairs"])],
+    themes: [...allowed(["Ore and metal", "Machinery", "Crafted gear"]), ...locked(["Piracy and thieving"])],
     duties: [
-      { id: "dwarves-ore", label: "Mine and bank 150 ore or essence.", favor: 4 },
-      { id: "dwarves-forge", label: "Smith or craft a full gear milestone.", favor: 5 },
-      { id: "dwarves-machine", label: "Unlock or use a machinery-themed transport or activity.", favor: 6 }
+      { id: "dwarves-ore", label: "Bank ore shipments", detail: "Mine and bank ore, essence, or bars for the hall.", favor: 180, target: 100, unit: "ore" },
+      { id: "dwarves-forge", label: "Forge gear upgrades", detail: "Smith or craft practical gear upgrades.", favor: 240, target: 4, unit: "items" },
+      { id: "dwarves-machine", label: "Use machinery routes", detail: "Unlock or use machinery-themed transport or activities.", favor: 300, target: 3, unit: "uses" }
     ],
-    allianceCost: 14,
-    accent: "#b88345"
+    allianceCost: 5000,
+    accent: "#d3a13b"
   },
   {
     id: "fremennik",
     name: "Fremennik",
-    sigil: "helm",
-    tagline: "Trials, boats, northern grit, and self-reliance.",
+    sigil: "Helm",
+    tagline: "Brave seafarers of the northern wastes.",
     ethos: "Fremennik allow content that proves toughness, travel by sea, or supports northern warrior culture.",
-    allowedThemes: ["Melee trials", "Boats", "Northern routes", "Self-reliant combat"],
-    regions: ["Rellekka", "Waterbirth", "Miscellania", "Lunar Isle"],
-    skills: ["Attack", "Strength", "Fishing", "Hunter"],
-    gear: ["Melee gear", "Helms", "Harpoons", "Lunar-linked tools"],
+    regions: [...allowed(["Rellekka", "Waterbirth", "Miscellania"]), ...conditional(["Lunar Isle", "Neitiznot"])],
+    skills: [...allowed(["Attack", "Strength", "Fishing", "Hunter"]), ...conditional(["Magic", "Prayer"])],
+    gear: [...allowed(["Melee gear", "Helms", "Harpoons", "Fremennik shields"]), ...conditional(["Lunar tools", "Dagannoth drops"])],
+    themes: [...allowed(["Trials", "Boats", "Northern survival"]), ...locked(["Desert trade"])],
     duties: [
-      { id: "fremennik-trial", label: "Complete a combat or survival trial under your own supplies.", favor: 5 },
-      { id: "fremennik-sea", label: "Finish a boat-linked journey, clue, or island errand.", favor: 4 },
-      { id: "fremennik-feast", label: "Gather food and defeat a fitting northern enemy.", favor: 6 }
+      { id: "fremennik-trial", label: "Win survival trials", detail: "Complete self-supplied combat or survival milestones.", favor: 260, target: 3, unit: "trials" },
+      { id: "fremennik-sea", label: "Finish sea errands", detail: "Complete boat-linked journeys, clues, or island errands.", favor: 180, target: 4, unit: "errands" },
+      { id: "fremennik-feast", label: "Stock feast supplies", detail: "Gather food and defeat a fitting northern enemy.", favor: 300, target: 6, unit: "steps" }
     ],
-    allianceCost: 15,
-    accent: "#6c8fa3"
+    allianceCost: 5000,
+    accent: "#6aa2c8"
   },
   {
     id: "pirates",
     name: "Pirates",
-    sigil: "anchor",
-    tagline: "Ports, contraband, clues, and coastal trouble.",
+    sigil: "Skull",
+    tagline: "Rogues of the seas and seekers of fortune.",
     ethos: "Pirates allow content that involves sea routes, treasure, ranged skirmishes, thieving, or port towns.",
-    allowedThemes: ["Clues", "Thieving", "Ranged gear", "Coastal routes"],
-    regions: ["Brimhaven", "Port Sarim", "Mos Le'Harmless", "Corsair Cove"],
-    skills: ["Ranged", "Thieving", "Agility", "Fishing"],
-    gear: ["Ranged weapons", "Treasure trail items", "Light armour", "Looting tools"],
+    regions: [...allowed(["Brimhaven", "Port Sarim", "Corsair Cove"]), ...conditional(["Mos Le'Harmless", "Wilderness coast"])],
+    skills: [...allowed(["Ranged", "Thieving", "Agility", "Fishing"]), ...conditional(["Slayer", "Cooking"])],
+    gear: [...allowed(["Ranged weapons", "Treasure trail items", "Light armour", "Looting tools"]), ...conditional(["Contraband upgrades", "Cannon use"])],
+    themes: [...allowed(["Clues", "Coastal routes", "Plunder"]), ...locked(["Peaceful druid rites"])],
     duties: [
-      { id: "pirates-plunder", label: "Complete a clue, thieving route, or port-town profit run.", favor: 4 },
-      { id: "pirates-broadside", label: "Defeat enemies using ranged-only combat.", favor: 5 },
-      { id: "pirates-smuggle", label: "Move supplies between two ports before spending them.", favor: 5 }
+      { id: "pirates-plunder", label: "Complete plunder runs", detail: "Finish clue, thieving, or port-town profit routes.", favor: 190, target: 4, unit: "runs" },
+      { id: "pirates-broadside", label: "Win ranged skirmishes", detail: "Defeat enemies using ranged-only combat.", favor: 240, target: 20, unit: "kills" },
+      { id: "pirates-smuggle", label: "Move port supplies", detail: "Move supplies between ports before spending them.", favor: 210, target: 5, unit: "loads" }
     ],
-    allianceCost: 13,
-    accent: "#3f8ca8"
+    allianceCost: 5000,
+    accent: "#c8694f"
   },
   {
     id: "desert-merchants",
     name: "Desert Merchants",
-    sigil: "coin",
-    tagline: "Trade routes, heat, supply planning, and negotiated power.",
+    sigil: "Scales",
+    tagline: "Traders of the sands and distant lands.",
     ethos: "Desert Merchants allow progress through trade, travel preparation, desert tasks, and resource conversion.",
-    allowedThemes: ["Trade routes", "Agility", "Crafting", "Supply planning"],
-    regions: ["Al Kharid", "Pollnivneach", "Sophanem", "Menaphos-adjacent routes"],
-    skills: ["Agility", "Crafting", "Thieving", "Cooking"],
-    gear: ["Desert robes", "Jewellery", "Trade goods", "Waterskins and supplies"],
+    regions: [...allowed(["Al Kharid", "Pollnivneach", "Sophanem"]), ...conditional(["Pyramid routes", "Desert treasure sites"])],
+    skills: [...allowed(["Agility", "Crafting", "Thieving", "Cooking"]), ...conditional(["Magic", "Firemaking"])],
+    gear: [...allowed(["Desert robes", "Jewellery", "Trade goods", "Waterskins"]), ...conditional(["Ancient items", "Gold-trimmed gear"])],
+    themes: [...allowed(["Trade routes", "Supply planning", "Heat survival"]), ...locked(["Northern raids"])],
     duties: [
-      { id: "desert-route", label: "Complete a desert route with planned supplies only.", favor: 4 },
-      { id: "desert-barter", label: "Craft, buy, or convert goods into a new upgrade.", favor: 5 },
-      { id: "desert-heat", label: "Finish a desert-themed quest, diary step, or activity.", favor: 6 }
+      { id: "desert-route", label: "Run desert routes", detail: "Complete desert routes with planned supplies only.", favor: 190, target: 4, unit: "routes" },
+      { id: "desert-barter", label: "Barter upgrades", detail: "Craft, buy, or convert goods into useful upgrades.", favor: 230, target: 6, unit: "trades" },
+      { id: "desert-heat", label: "Complete heat tasks", detail: "Finish desert-themed quest, diary, or activity steps.", favor: 280, target: 3, unit: "tasks" }
     ],
-    allianceCost: 12,
-    accent: "#d59a3d"
+    allianceCost: 5000,
+    accent: "#d79b42"
   },
   {
     id: "arceuus-scholars",
     name: "Arceuus Scholars",
-    sigil: "book",
-    tagline: "Books, prayer, dark study, and careful forbidden knowledge.",
+    sigil: "Eye",
+    tagline: "Seekers of dark knowledge and the unseen.",
     ethos: "Arceuus Scholars allow content linked to books, prayer, magic, Zeah scholarship, and controlled dark rituals.",
-    allowedThemes: ["Magic", "Prayer", "Books", "Zeah scholarship"],
-    regions: ["Arceuus", "Great Kourend libraries", "Dark altar routes", "Catacombs"],
-    skills: ["Magic", "Prayer", "Runecraft", "Slayer"],
-    gear: ["Books", "Robes", "Ensouled heads", "Runes and staffs"],
+    regions: [...allowed(["Arceuus", "Great Kourend Library", "Dark altar routes"]), ...conditional(["Catacombs", "Zeah runecraft routes"])],
+    skills: [...allowed(["Magic", "Prayer", "Runecraft", "Slayer"]), ...conditional(["Crafting", "Defence"])],
+    gear: [...allowed(["Books", "Robes", "Ensouled heads", "Runes and staffs"]), ...conditional(["Ancient magicks", "Occult tools"])],
+    themes: [...allowed(["Books", "Prayer", "Dark study", "Zeah scholarship"]), ...locked(["Pirate plunder"])],
     duties: [
-      { id: "arceuus-study", label: "Complete a lore, book, or library task.", favor: 3 },
-      { id: "arceuus-ritual", label: "Train prayer or magic using a restricted resource plan.", favor: 5 },
-      { id: "arceuus-catacomb", label: "Defeat a fitting Catacombs or undead target.", favor: 6 }
+      { id: "arceuus-study", label: "Recover library books", detail: "Complete lore, book, or library tasks.", favor: 160, target: 6, unit: "books" },
+      { id: "arceuus-ritual", label: "Perform rituals", detail: "Train prayer or magic with a restricted resource plan.", favor: 260, target: 4, unit: "rituals" },
+      { id: "arceuus-catacomb", label: "Clear catacomb targets", detail: "Defeat fitting Catacombs or undead targets.", favor: 300, target: 25, unit: "kills" }
     ],
-    allianceCost: 14,
-    accent: "#8d63b0"
+    allianceCost: 5000,
+    accent: "#9b6bd3"
   }
 ];
+
+export const LOCKED_CONTENT: Record<"regions" | "skills" | "gear" | "themes", ContentItem[]> = {
+  regions: locked(["Morytania", "Wilderness deep routes", "Raid lobbies"]),
+  skills: locked(["PvP contracts", "Unaligned Slayer grinds", "Unsworn boss rushing"]),
+  gear: locked(["Godwars items", "Raid uniques", "Infernal tools", "Dragon equipment"]),
+  themes: locked(["PvP Wilderness", "Unrestricted rare drops", "Unaligned boss farming"])
+};
 
 export const getFaction = (id: string | null | undefined): Faction | undefined =>
   FACTIONS.find((faction) => faction.id === id);

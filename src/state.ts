@@ -1,14 +1,22 @@
-import { FactionId, HistoryEntry, RunState } from "./types";
+import { FactionId, HistoryEntry, RunSettings, RunState } from "./types";
 
 export const STORAGE_KEY = "favorbound-companion-state-v1";
+
+export const defaultSettings: RunSettings = {
+  strictMode: true,
+  favorStep: 150
+};
 
 export const defaultRunState: RunState = {
   runName: "",
   startingFactionId: null,
   alliedFactionIds: [],
   favor: 0,
+  factionFavor: {},
   completedDutyIds: [],
-  history: []
+  dutyProgress: {},
+  history: [],
+  settings: defaultSettings
 };
 
 export function createHistory(message: string, detail: string): HistoryEntry {
@@ -31,8 +39,11 @@ export function loadRunState(): RunState {
       ...parsed,
       startingFactionId: parsed.startingFactionId ?? null,
       alliedFactionIds: Array.isArray(parsed.alliedFactionIds) ? parsed.alliedFactionIds as FactionId[] : [],
+      factionFavor: parsed.factionFavor && typeof parsed.factionFavor === "object" ? parsed.factionFavor : {},
       completedDutyIds: Array.isArray(parsed.completedDutyIds) ? parsed.completedDutyIds : [],
-      history: Array.isArray(parsed.history) ? parsed.history : []
+      dutyProgress: parsed.dutyProgress && typeof parsed.dutyProgress === "object" ? parsed.dutyProgress : {},
+      history: Array.isArray(parsed.history) ? parsed.history : [],
+      settings: { ...defaultSettings, ...(parsed.settings || {}) }
     };
   } catch {
     return defaultRunState;
