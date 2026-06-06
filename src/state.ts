@@ -22,6 +22,7 @@ export function createHistory(message: string, detail: string): HistoryEntry {
 
 export function loadRunState(): RunState {
   try {
+    if (typeof window === "undefined" || !("localStorage" in window)) return defaultRunState;
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultRunState;
     const parsed = JSON.parse(raw) as Partial<RunState>;
@@ -39,5 +40,10 @@ export function loadRunState(): RunState {
 }
 
 export function saveRunState(state: RunState): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    if (typeof window === "undefined" || !("localStorage" in window)) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Storage can be unavailable in strict privacy modes; the app should still run.
+  }
 }

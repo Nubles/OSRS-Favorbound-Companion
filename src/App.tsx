@@ -94,7 +94,9 @@ function App() {
       `Alliances: ${activeFactions.map((faction) => faction.name).join(", ") || "None"}`,
       `Allowed skills: ${allowedContent.skills.join(", ") || "None"}`
     ].join("\n");
-    await navigator.clipboard.writeText(summary);
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(summary);
+    }
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1800);
   }
